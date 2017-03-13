@@ -1,0 +1,2 @@
+RESET QUERY CACHE;
+

@@ -12,6 +12,8 @@ func(){
   $COMMAND $ARGS > act.txt
 }
 
+./execSql.sh clearCache.sql
+
 time func
 
 diff $EXPECT_FILE $ACTUAL
