@@ -1,0 +1,105 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters" : {
+    "Participant" : {
+      "Type" : "String",
+      "Default" : "participant1",
+      "Description" : "this used at ec2 name tag, rds instance name"
+    },
+    "RDSSnapshot" : {
+      "Type" : "String",
+      "Default" : "participant-snapshot",
+      "Description" : "RDS(Aurora) snapshot identifier"
+    },
+    "SecurityGroup" : {
+      "Type" : "String",
+      "Default" : "sg-a2aee2c5",
+      "Description" : "VPC SG"
+    }
+  },
+  "Description": "test for participant", 
+  "Resources": {
+    "RDSPractisCluster" : {
+        "Type" : "AWS::RDS::DBCluster",
+        "Properties" :
+        {
+            "DBSubnetGroupName" : "default",
+            "Engine" : "aurora",
+            "DatabaseName" :  { "Ref" : "Participant" },
+            "SnapshotIdentifier" :  {"Ref" : "RDSSnapshot"},
+            "VpcSecurityGroupIds" :  [ {"Ref" : "SecurityGroup"}]
+        }
+    },
+    "RDSPractice": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "Engine" : "aurora",
+        "DBInstanceClass": "db.r3.large",
+        "PubliclyAccessible": "true",
+        "DBClusterIdentifier" : {"Ref" : "RDSPractisCluster"},
+        "Tags": [ {"Key": "Name", "Value": { "Ref" : "Participant" }}, {"Key": "Division", "Value": "Practice"}]
+       }
+    },
+    "RDSEvalutionCluster" : {
+        "Type" : "AWS::RDS::DBCluster",
+        "Properties" :
+        {
+            "DBSubnetGroupName" : "default",
+            "Engine" : "aurora",
+            "DatabaseName" :  { "Ref" : "Participant" },
+            "SnapshotIdentifier" :  {"Ref" : "RDSSnapshot"},
+            "VpcSecurityGroupIds" :  [ {"Ref" : "SecurityGroup"}]
+        }
+    },
+    "RDSEvalution": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "Engine" : "aurora",
+        "DBInstanceClass": "db.r3.large",
+        "PubliclyAccessible": "true",
+        "DBClusterIdentifier" : {"Ref" : "RDSEvalutionCluster"},
+        "Tags": [ {"Key": "Name", "Value": { "Ref" : "Participant" }}, {"Key": "Division", "Value": "Evalution"}]
+       }
+    },
+    "EC2": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "DisableApiTermination": "false",
+        "InstanceInitiatedShutdownBehavior": "stop",
+        "EbsOptimized": "true",
+        "ImageId": "ami-56d4ad31",
+        "InstanceType": "m4.large",
+        "KeyName": "sql_tech",
+        "Monitoring": "false",
+        "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+          "#!/bin/bash\n" ,
+          "useradd sqltech\n",
+          "echo \"sqltech:sqltech\" | chpasswd\n",
+          "cd /home/sqltech\n",
+          "yum install -y mysql git", "\n",
+          "git clone https://github.com/enterprisegeeks/sql_tech.git \n",
+          "echo \"",  {"Fn::GetAtt" : [ "RDSPractice" , "Endpoint.Address" ]}, "\" > sql_tech/db_ep1.txt \n",
+          "echo \"",  {"Fn::GetAtt" : [ "RDSEvalution" , "Endpoint.Address" ]}, "\" > sql_tech/db_ep2.txt \n",
+          "chmod -R 755  db_ep*.txt\n",
+          "chown -R sqltech  db_ep*.txt\n",
+          "chgrp -R sqltech  db_ep*.txt\n",
+          "chmod -R 755  sql_tech\n",
+          "chown -R sqltech  sql_tech\n",
+          "chgrp -R sqltech  sql_tech\n",
+          "sed -i -e 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config \n",
+          "/etc/init.d/sshd restart \n"
+         ]]}},
+        "Tags": [ {"Key": "Name", "Value": { "Ref" : "Participant" }}],
+        "NetworkInterfaces": [
+          {
+            "DeleteOnTermination": "true",
+            "Description": "Primary network interface",
+            "DeviceIndex": 0,
+            "SubnetId": "subnet-561f5220",
+            "GroupSet": [{"Ref" : "SecurityGroup"}]
+          }
+        ]
+       }
+     }
+  }
+}
