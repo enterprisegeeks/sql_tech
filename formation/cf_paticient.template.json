@@ -15,7 +15,13 @@
       "Type" : "String",
       "Default" : "sg-a2aee2c5",
       "Description" : "VPC SG"
+    },
+    "SecurityGroupEvalution" : {
+      "Type" : "String",
+      "Default" : "sg-4fc8ec28",
+      "Description" : "VPC SG for evalution"
     }
+    	
   },
   "Description": "test for participant", 
   "Resources": {
@@ -48,7 +54,7 @@
             "Engine" : "aurora",
             "DatabaseName" :  { "Ref" : "Participant" },
             "SnapshotIdentifier" :  {"Ref" : "RDSSnapshot"},
-            "VpcSecurityGroupIds" :  [ {"Ref" : "SecurityGroup"}]
+            "VpcSecurityGroupIds" :  [ {"Ref" : "SecurityGroupEvalution"}]
         }
     },
     "RDSEvalution": {
@@ -75,6 +81,15 @@
           "#!/bin/bash\n" ,
           "useradd sqltech\n",
           "echo \"sqltech:sqltech\" | chpasswd\n",
+          "EDITOR=ed visudo <<'EOC'","\n",
+          "$","\n",
+          "a","\n",
+          "sqltech ALL=NOPASSWD: ALL","\n",
+          ".","\n",
+          "w","\n",
+          "q","\n",
+          "EOC","\n",
+          "\n",
           "cd /home/sqltech\n",
           "yum install -y mysql git", "\n",
           "git clone https://github.com/enterprisegeeks/sql_tech.git \n",
