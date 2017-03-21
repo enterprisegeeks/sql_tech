@@ -116,5 +116,16 @@
         ]
        }
      }
+  },
+  "Outputs" : {
+  "Ec2Endpoint" : {
+    "Value" : {"Fn::GetAtt" : [ "EC2" , "PublicDnsName" ]}
+  },
+   "RdsTestEndpoint" : {
+    "Value" : {"Fn::GetAtt" : [ "RDSPractice" , "Endpoint.Address" ]}
+  },
+   "RdsEvalEndpoint" : {
+    "Value" : {"Fn::GetAtt" : [ "RDSEvalution" , "Endpoint.Address" ]}
   }
+}
 }
