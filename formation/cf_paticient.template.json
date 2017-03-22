@@ -8,7 +8,7 @@
     },
     "RDSSnapshot" : {
       "Type" : "String",
-      "Default" : "participant-snapshot",
+      "Default" : "participant-final-snapshot",
       "Description" : "RDS(Aurora) snapshot identifier"
     },
     "SecurityGroup" : {
@@ -31,6 +31,7 @@
         {
             "DBSubnetGroupName" : "default",
             "Engine" : "aurora",
+            "DBClusterParameterGroupName": "aurora-utf8-nocache-cpg",
             "DatabaseName" :  { "Ref" : "Participant" },
             "SnapshotIdentifier" :  {"Ref" : "RDSSnapshot"},
             "VpcSecurityGroupIds" :  [ {"Ref" : "SecurityGroup"}]
@@ -42,6 +43,7 @@
         "Engine" : "aurora",
         "DBInstanceClass": "db.r3.large",
         "PubliclyAccessible": "true",
+        "DBParameterGroupName": "aurora-utf8-nocache-pg",
         "DBClusterIdentifier" : {"Ref" : "RDSPractisCluster"},
         "Tags": [ {"Key": "Name", "Value": { "Ref" : "Participant" }}, {"Key": "Division", "Value": "Practice"}]
        }
@@ -52,6 +54,7 @@
         {
             "DBSubnetGroupName" : "default",
             "Engine" : "aurora",
+            "DBClusterParameterGroupName": "aurora-utf8-nocache-cpg",
             "DatabaseName" :  { "Ref" : "Participant" },
             "SnapshotIdentifier" :  {"Ref" : "RDSSnapshot"},
             "VpcSecurityGroupIds" :  [ {"Ref" : "SecurityGroupEvalution"}]
@@ -63,6 +66,7 @@
         "Engine" : "aurora",
         "DBInstanceClass": "db.r3.large",
         "PubliclyAccessible": "true",
+        "DBParameterGroupName": "aurora-utf8-nocache-pg",
         "DBClusterIdentifier" : {"Ref" : "RDSEvalutionCluster"},
         "Tags": [ {"Key": "Name", "Value": { "Ref" : "Participant" }}, {"Key": "Division", "Value": "Evalution"}]
        }
