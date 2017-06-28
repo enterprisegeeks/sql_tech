@@ -13,13 +13,33 @@
     },
     "SecurityGroup" : {
       "Type" : "String",
-      "Default" : "sg-a2aee2c5",
+      "Default" : "sg-23a80945",
       "Description" : "VPC SG"
     },
     "SecurityGroupEvalution" : {
       "Type" : "String",
-      "Default" : "sg-4fc8ec28",
+      "Default" : "sg-2eb51448",
       "Description" : "VPC SG for evalution"
+    },
+    "Subnet" : {
+      "Type" : "String",
+      "Default" : "subnet-1e277346",
+      "Description" : "default public subnet"
+    },
+    "DBParameterGroup" : {
+      "Type" : "String",
+      "Default" : "aurora-db-utf8",
+      "Description" : "utf8 RDS aurora"
+    },
+    "ClusterParameterGroup" : {
+      "Type" : "String",
+      "Default" : "aurora-cluster-utf8",
+      "Description" : "utf8 RDS aurora"
+    },
+    "EC2AMI" : {
+      "Type" : "String",
+      "Default" : "ami-3bd3c45c",
+      "Description" : "EC2 AMI Image ID"
     }
     	
   },
@@ -31,7 +51,7 @@
         {
             "DBSubnetGroupName" : "default",
             "Engine" : "aurora",
-            "DBClusterParameterGroupName": "aurora-utf8-nocache-cpg",
+            "DBClusterParameterGroupName":  { "Ref" : "ClusterParameterGroup" },
             "DatabaseName" :  { "Ref" : "Participant" },
             "SnapshotIdentifier" :  {"Ref" : "RDSSnapshot"},
             "VpcSecurityGroupIds" :  [ {"Ref" : "SecurityGroup"}]
@@ -43,7 +63,7 @@
         "Engine" : "aurora",
         "DBInstanceClass": "db.r3.large",
         "PubliclyAccessible": "true",
-        "DBParameterGroupName": "aurora-utf8-nocache-pg",
+        "DBParameterGroupName": { "Ref" : "DBParameterGroup" },
         "DBClusterIdentifier" : {"Ref" : "RDSPractisCluster"},
         "Tags": [ {"Key": "Name", "Value": { "Ref" : "Participant" }}, {"Key": "Division", "Value": "Practice"}]
        }
@@ -54,7 +74,7 @@
         {
             "DBSubnetGroupName" : "default",
             "Engine" : "aurora",
-            "DBClusterParameterGroupName": "aurora-utf8-nocache-cpg",
+            "DBClusterParameterGroupName": { "Ref" : "ClusterParameterGroup" },
             "DatabaseName" :  { "Ref" : "Participant" },
             "SnapshotIdentifier" :  {"Ref" : "RDSSnapshot"},
             "VpcSecurityGroupIds" :  [ {"Ref" : "SecurityGroupEvalution"}]
@@ -66,7 +86,7 @@
         "Engine" : "aurora",
         "DBInstanceClass": "db.r3.large",
         "PubliclyAccessible": "true",
-        "DBParameterGroupName": "aurora-utf8-nocache-pg",
+        "DBParameterGroupName": { "Ref" : "DBParameterGroup" },
         "DBClusterIdentifier" : {"Ref" : "RDSEvalutionCluster"},
         "Tags": [ {"Key": "Name", "Value": { "Ref" : "Participant" }}, {"Key": "Division", "Value": "Evalution"}]
        }
@@ -77,7 +97,7 @@
         "DisableApiTermination": "false",
         "InstanceInitiatedShutdownBehavior": "stop",
         "EbsOptimized": "true",
-        "ImageId": "ami-56d4ad31",
+        "ImageId": {"Ref": "EC2AMI"},
         "InstanceType": "m4.large",
         "KeyName": "sql_tech",
         "Monitoring": "false",
@@ -114,7 +134,7 @@
             "DeleteOnTermination": "true",
             "Description": "Primary network interface",
             "DeviceIndex": 0,
-            "SubnetId": "subnet-561f5220",
+            "SubnetId": { "Ref" : "Subnet" },
             "GroupSet": [{"Ref" : "SecurityGroup"}]
           }
         ]
